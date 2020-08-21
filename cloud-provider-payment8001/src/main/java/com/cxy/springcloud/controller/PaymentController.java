@@ -1,10 +1,11 @@
-package com.cxy.springcloud;
+package com.cxy.springcloud.controller;
 
 import com.cxy.springcloud.entities.CommonResult;
 import com.cxy.springcloud.entities.Payment;
 import com.cxy.springcloud.service.PaymentService;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.cloud.client.discovery.DiscoveryClient;
 import org.springframework.web.bind.annotation.*;
 
 import javax.annotation.Resource;
@@ -24,6 +25,10 @@ public class PaymentController {
 
     @Value("${server.port}")
     private String serverPort;
+
+    @Resource
+    //服务发现，是springframework的包。
+    private DiscoveryClient discoveryClient;
 
     /**
      * 远程调用需要 @RequestBody注解
@@ -52,6 +57,27 @@ public class PaymentController {
             return new CommonResult(444, "获取数据失败，ID是" + id, null);
         }
     }
+
+    /**
+     * 类似与关于我们，查看注册在eureka的服务信息 -> CLOUD-PAYMENT-SERVICE
+     * @return
+     */
+    @GetMapping("/payment/discovery")
+    public Object discovery() {
+        discoveryClient.getServices().forEach((element) -> log.info("******element" + element));
+        discoveryClient.getInstances("CLOUD-PAYMENT-SERVICE").forEach((instances) -> log.info(instances.getServiceId()
+                + "\t" + instances.getHost() + "\t"
+                + instances.getPort() + "\t" + instances.getUri()));
+
+        return this.discoveryClient;
+    }
+
+    @GetMapping(value = "/payment/lb")
+    public String getPaymentLB()
+    {
+        return serverPort;
+    }
+
 
 
 }
