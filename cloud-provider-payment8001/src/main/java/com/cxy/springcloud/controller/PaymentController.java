@@ -9,6 +9,7 @@ import org.springframework.cloud.client.discovery.DiscoveryClient;
 import org.springframework.web.bind.annotation.*;
 
 import javax.annotation.Resource;
+import java.util.concurrent.TimeUnit;
 
 /**
  * @program: cxycloud2020
@@ -60,6 +61,7 @@ public class PaymentController {
 
     /**
      * 类似与关于我们，查看注册在eureka的服务信息 -> CLOUD-PAYMENT-SERVICE
+     *
      * @return
      */
     @GetMapping("/payment/discovery")
@@ -73,11 +75,24 @@ public class PaymentController {
     }
 
     @GetMapping(value = "/payment/lb")
-    public String getPaymentLB()
-    {
+    public String getPaymentLB() {
         return serverPort;
     }
 
+    /**
+     * 增加openFeign超时方法
+     */
+    @GetMapping(value = "/payment/feign/timeout")
+    public String paymentFeignTimeout() {
+
+        try {
+            TimeUnit.SECONDS.sleep(3);
+        } catch (InterruptedException e) {
+            e.printStackTrace();
+        }
+
+        return serverPort;
+    }
 
 
 }
